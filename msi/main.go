@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
@@ -16,7 +17,6 @@ import (
 	"github.com/ehmm/go-msi/templates"
 	"github.com/ehmm/go-msi/util"
 	"github.com/ehmm/go-msi/wix"
-	"github.com/mh-cbon/stringexec"
 	"github.com/urfave/cli"
 )
 
@@ -905,7 +905,7 @@ func chocoMake(c *cli.Context) error {
 	}
 
 	if changelogCmd != "" {
-		windows, err := stringexec.Command(changelogCmd)
+		windows, err := runCommandAsBatch(changelogCmd)
 		if err != nil {
 			return cli.NewExitError(err.Error(), 1)
 		}
@@ -969,4 +969,38 @@ func chocoMake(c *cli.Context) error {
 	fmt.Println("All Done!!")
 
 	return nil
+}
+
+// Return a new exec.Cmd object for the given command string
+func runCommandAsBatch(cmd string) (*exec.Cmd, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	if runtime.GOOS == "windows" {
+		return windowsCommand(cwd, cmd)
+	}
+	return friendlyUnixCommand(cwd, cmd)
+}
+
+func windowsCommand(cwd string, cmd string) (*exec.Cmd, error) {
+	dir, err := os.MkdirTemp("", "gomsi*")
+	if err != nil {
+		return nil, err
+	}
+	err = os.WriteFile(dir+"/command.bat", []byte(cmd), 0766)
+	if err != nil {
+		return nil, err
+	}
+
+	oCmd := exec.Command("cmd", []string{"/C", dir + "/some.bat"}...)
+	oCmd.Dir = cwd
+	// defer os.Remove(tmpfile.Name()) // clean up // not sure how to clean it :x
+	return oCmd, nil
+}
+
+func friendlyUnixCommand(cwd string, cmd string) (*exec.Cmd, error) {
+	oCmd := exec.Command("sh", []string{"-c", cmd}...)
+	oCmd.Dir = cwd
+	return oCmd, nil
 }
