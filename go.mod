@@ -3,7 +3,7 @@ module github.com/ehmm/go-msi
 go 1.22
 
 require (
-	github.com/Masterminds/semver v1.4.2
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/bmatcuk/doublestar v1.1.5
 	github.com/google/uuid v1.1.1
 	github.com/kardianos/service v0.0.0-20180823001510-8f267d80f2eb

@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	"github.com/bmatcuk/doublestar"
 	"github.com/ehmm/go-msi/manifest"
 	"github.com/ehmm/go-msi/rtf"

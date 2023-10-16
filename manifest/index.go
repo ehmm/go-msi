@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	"github.com/google/uuid"
 )
 
@@ -418,7 +418,8 @@ func (wixFile *WixManifest) Normalize() error {
 			return fmt.Errorf("Failed to parse version '%v', fields must not exceed maximum values of 255.255.65535", wixFile.Version.User)
 		}
 		wixFile.Version.MSI = v.String()
-		wixFile.Version.Hex = v.Major()<<24 + v.Minor()<<16 + v.Patch()
+		versionHex := v.Major()<<24 + v.Minor()<<16 + v.Patch()
+		wixFile.Version.Hex = int64(versionHex)
 	} else {
 		return fmt.Errorf("Failed to parse version '%v', must be either a semantic version or a single build/revision number", wixFile.Version.User)
 	}
